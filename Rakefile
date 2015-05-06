@@ -276,9 +276,6 @@ task :build_movie_debug do
 	system_or_exit "xcodebuild -project kxmovie.xcodeproj -target kxmovie -configuration Debug -sdk iphoneos#{SDK_VERSION} build SYMROOT=#{buildDir} -arch armv7s"
 	FileUtils.move Pathname.new('tmp/build/Debug-iphoneos/libkxmovie.a'), Pathname.new('tmp/build/Debug-iphoneos/libkxmovie_armv7s.a')
 
-  system_or_exit "xcodebuild -project kxmovie.xcodeproj -target kxmovie -configuration Debug -sdk iphoneos#{SDK_VERSION} build SYMROOT=#{buildDir} -arch armv64"
-	FileUtils.move Pathname.new('tmp/build/Debug-iphoneos/libkxmovie.a'), Pathname.new('tmp/build/Debug-iphoneos/libkxmovie_armv64.a')
-
 	system_or_exit "xcodebuild -project kxmovie.xcodeproj -target kxmovie -configuration Debug -sdk iphoneos#{SDK_VERSION} build SYMROOT=#{buildDir} -arch armv7"
 	system_or_exit "xcodebuild -project kxmovie.xcodeproj -target kxmovie -configuration Debug -sdk iphonesimulator#{SDK_VERSION} build SYMROOT=#{buildDir}"
 	system_or_exit "lipo -create -arch armv7 tmp/build/Debug-iphoneos/libkxmovie.a -arch armv7s tmp/build/Debug-iphoneos/libkxmovie_armv7s.a -arch i386 tmp/build/Debug-iphonesimulator/libkxmovie.a -arch x86_64 -output tmp/build/libkxmovie.a"
@@ -314,7 +311,7 @@ end
 
 ##
 task :clean => [:clean_movie_debug, :clean_movie_release, :clean_ffmpeg]
-task :build_ffmpeg => [:check_gas_preprocessor, :build_ffmpeg_armv7, :build_ffmpeg_armv7s, :build_ffmpeg_arm64, :build_ffmpeg_i386, :build_ffmpeg_x86_64, :build_ffmpeg_universal]
+task :build_ffmpeg => [:check_gas_preprocessor, :build_ffmpeg_armv7, :build_ffmpeg_arm64, :build_ffmpeg_i386, :build_ffmpeg_x86_64, :build_ffmpeg_universal]
 #task :build_movie => [:build_movie_debug, :copy_movie]
 task :build_movie => [:build_movie_release, :copy_movie]
 task :build_all => [:build_ffmpeg, :build_movie]

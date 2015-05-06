@@ -11,6 +11,7 @@
 
 #import "AppDelegate.h"
 #import "MainViewController.h"
+#import "PlayerViewController.h"
 
 @implementation AppDelegate
 
@@ -18,9 +19,11 @@
 {
     UIViewController *vc = [[MainViewController alloc] init];
     UINavigationController *navVc = [[UINavigationController alloc] initWithRootViewController:vc];
-
+    
+    PlayerViewController *player = [[PlayerViewController alloc] init];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = navVc;
+    self.window.rootViewController = player;
     [self.window makeKeyAndVisible];
 
     LoggerApp(1, @"Application didFinishLaunchingWithOptions");
