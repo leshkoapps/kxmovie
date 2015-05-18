@@ -830,13 +830,9 @@ enum {
 }
 
 - (void)handleDecoderMovieError: (NSError *) error {
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Failure", nil)
-                                                        message:[error localizedDescription]
-                                                       delegate:nil
-                                              cancelButtonTitle:NSLocalizedString(@"Close", nil)
-                                              otherButtonTitles:nil];
-    
-    [alertView show];
+    if ([self.delegate respondsToSelector:@selector(movieController:failureWithError:)]) {
+        [self.delegate movieController:self failureWithError:error];
+    }
 }
 
 - (BOOL) interruptDecoder {
