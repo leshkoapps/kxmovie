@@ -19,14 +19,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     
-    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"rtmp://115.231.182.72/iostest/test"
+    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"xxx"
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES)}];
     self.movieController = movieController;
     
     CGRect frame = CGRectMake(0, 0, 200, 400);
     movieController.playerView.frame = frame;
-    movieController.playerView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:movieController.playerView];
 }
 

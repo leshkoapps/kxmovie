@@ -14,6 +14,11 @@
 #import "KxMovieGLView.h"
 #import "KxLogger.h"
 
+NSString * const KxMovieParameterMinBufferedDuration = @"KxMovieParameterMinBufferedDuration";
+NSString * const KxMovieParameterMaxBufferedDuration = @"KxMovieParameterMaxBufferedDuration";
+NSString * const KxMovieParameterDisableDeinterlacing = @"KxMovieParameterDisableDeinterlacing";
+NSString * const KxMovieParameterFrameViewContentMode = @"KxMovieParameterFrameViewContentMode";
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static NSString * formatTimeInterval(CGFloat seconds, BOOL isLeft)
@@ -100,6 +105,7 @@ enum {
 @property (nonatomic, readwrite, getter=isPlaying) BOOL playing;
 @property (readwrite) BOOL decoding;
 @property (readwrite, strong) KxArtworkFrame *artworkFrame;
+@property (nonatomic, assign) UIViewContentMode frameViewContentMode;
 @end
 
 @implementation KxMovieController
@@ -121,25 +127,31 @@ enum {
     if (self) {
         
         _moviePosition = 0;
-        
+        _userInteractionEnable = YES;
         _parameters = parameters;
         
         __weak KxMovieController *weakSelf = self;
         
         KxMovieDecoder *decoder = [[KxMovieDecoder alloc] init];
-//        self.decoder = decoder;
-        
         decoder.interruptCallback = ^BOOL(){
             
             __strong KxMovieController *strongSelf = weakSelf;
             return strongSelf ? [strongSelf interruptDecoder] : YES;
         };
-        
-        NSError *error = nil;
-        [decoder openFile:path error:&error];
+        self.decoder = decoder;
         
         [self loadPlayerView];
-        [self setMovieDecoder:decoder withError:error];
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            __strong KxMovieController *strongSelf = weakSelf;
+            
+            NSError *error = nil;
+            [strongSelf.decoder openFile:path error:&error];
+            
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [strongSelf setMovieDecoder:decoder withError:error];
+            });
+        });
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveMemoryWarning)
@@ -165,9 +177,9 @@ enum {
     self.playerView = [[UIView alloc] initWithFrame:bounds];
     self.playerView.backgroundColor = [UIColor blackColor];
     
-    if (_decoder) {
-        [self setupPresentView];
-    }
+//    if (_decoder) {
+//        [self setupPresentView];
+//    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -360,7 +372,12 @@ enum {
     }
     
     UIView *frameView = [self frameView];
-    frameView.contentMode = UIViewContentModeScaleAspectFit;
+    if (_parameters[KxMovieParameterFrameViewContentMode]) {
+        frameView.contentMode = [_parameters[KxMovieParameterFrameViewContentMode] integerValue];
+    } else {
+        frameView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    
     frameView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
     
     [self.playerView insertSubview:frameView atIndex:0];
