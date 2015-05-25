@@ -21,8 +21,9 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"xxx"
-                                                                                parameters:@{KxMovieParameterDisableDeinterlacing: @(YES)}];
+    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"rtmp://mgrqm3.live1.z1.pili.qiniucdn.com/zhibodang/5562ed5afb16df236f00076a"
+                                                                                parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
+                                                                                             KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill)}];
     self.movieController = movieController;
     
     CGRect frame = CGRectMake(0, 0, 200, 400);
