@@ -126,6 +126,7 @@ enum {
     self = [super init];
     if (self) {
         
+        _muted = NO;
         _moviePosition = 0;
         _userInteractionEnable = YES;
         _parameters = parameters;
@@ -284,6 +285,30 @@ enum {
         
         [self updatePosition:position playMode:playMode];
     });
+}
+
+- (void)setMuted:(BOOL)muted {
+    [self enableAudio:!muted];
+}
+
+- (CGFloat)audioVolume {
+    return [KxAudioManager audioManager].outputVolume;
+}
+
+- (void)forward {
+    [self setMoviePosition: _moviePosition + 10];
+}
+
+- (void)rewind {
+    [self setMoviePosition: _moviePosition - 10];
+}
+
+- (CGFloat)duration {
+    return _decoder.duration;
+}
+
+- (CGFloat)position {
+    return _moviePosition;
 }
 
 #pragma mark - private
@@ -498,7 +523,7 @@ enum {
     id<KxAudioManager> audioManager = [KxAudioManager audioManager];
     
     if (on && _decoder.validAudio) {
-        
+        _muted = NO;
         audioManager.outputBlock = ^(float *outData, UInt32 numFrames, UInt32 numChannels) {
             
             [self audioCallbackFillData: outData numFrames:numFrames numChannels:numChannels];
@@ -512,7 +537,7 @@ enum {
                     (int)audioManager.numOutputChannels);
         
     } else {
-        
+        _muted = YES;
         [audioManager pause];
         audioManager.outputBlock = nil;
     }
