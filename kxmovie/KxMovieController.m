@@ -18,6 +18,7 @@ NSString * const KxMovieParameterMinBufferedDuration = @"KxMovieParameterMinBuff
 NSString * const KxMovieParameterMaxBufferedDuration = @"KxMovieParameterMaxBufferedDuration";
 NSString * const KxMovieParameterDisableDeinterlacing = @"KxMovieParameterDisableDeinterlacing";
 NSString * const KxMovieParameterFrameViewContentMode = @"KxMovieParameterFrameViewContentMode";
+NSString * const KxMovidParameterAutoPlayEnable = @"KxMovidParameterAutoPlayEnable";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +146,7 @@ enum {
         
         [self loadPlayerView];
         
-        self.playerView = KxMoviePlayerStatePreparing;
+        self.playerState = KxMoviePlayerStatePreparing;
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             __strong KxMovieController *strongSelf = weakSelf;
@@ -388,7 +389,7 @@ enum {
             [self setupPresentView];
         }
         
-        self.playerView = KxMoviePlayerStateReady;
+        self.playerState = KxMoviePlayerStateReady;
         if ([self.delegate respondsToSelector:@selector(movieControllerDecoderHasBeenReady:)]) {
             [self.delegate movieControllerDecoderHasBeenReady:self];
         }
