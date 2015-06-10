@@ -76,7 +76,7 @@ enum {
     NSMutableArray      *_subtitles;
     NSData              *_currentAudioFrame;
     NSUInteger          _currentAudioFramePos;
-    CGFloat             _moviePosition;
+    NSTimeInterval      _moviePosition;
     NSTimeInterval      _tickCorrectionTime;
     NSTimeInterval      _tickCorrectionPosition;
     NSUInteger          _tickCounter;
@@ -282,7 +282,7 @@ enum {
     [self pauseWithPlayerState:KxMoviePlayerStatePaused];
 }
 
-- (void)setMoviePosition:(CGFloat)position {
+- (void)setMoviePosition:(NSTimeInterval)position {
     BOOL playMode = self.playing;
     
     self.playing = NO;
@@ -311,11 +311,11 @@ enum {
     [self setMoviePosition: _moviePosition - 10];
 }
 
-- (CGFloat)duration {
+- (NSTimeInterval)duration {
     return _decoder.duration;
 }
 
-- (CGFloat)position {
+- (NSTimeInterval)position {
     return _moviePosition;
 }
 
@@ -824,6 +824,9 @@ enum {
     }
     
     _moviePosition = frame.position;
+    if ([self.delegate respondsToSelector:@selector(movieController:positionDidChange:)]) {
+        [self.delegate movieController:self positionDidChange:_moviePosition];
+    }
     
     return frame.duration;
 }
@@ -838,7 +841,7 @@ enum {
     _decoder.position = position;
 }
 
-- (void) updatePosition: (CGFloat) position
+- (void) updatePosition: (NSTimeInterval) position
                playMode: (BOOL) playMode
 {
     [self freeBufferedFrames];

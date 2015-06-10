@@ -23,6 +23,8 @@ static NSString *states[] = {
 <KxMovieControllerDelegate>
 
 @property (nonatomic, strong) KxMovieController *movieController;
+@property (nonatomic, strong) UISlider *slider;
+@property (nonatomic, strong) UILabel   *label;
 
 @end
 
@@ -42,9 +44,16 @@ static NSString *states[] = {
     movieController.playerView.center = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
     [self.view addSubview:movieController.playerView];
     
-    UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(10, CGRectGetHeight(self.view.bounds) * 0.95, CGRectGetWidth(self.view.bounds) - 20, 10)];
+    UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(10, CGRectGetHeight(self.view.bounds) * 0.95, CGRectGetWidth(self.view.bounds) - 110, 10)];
     [slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
     [self.view addSubview:slider];
+    self.slider = slider;
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetWidth(self.view.bounds) - 90, CGRectGetHeight(self.view.bounds) * 0.93, 90, 21)];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.text = @"--/--";
+    [self.view addSubview:label];
+    self.label = label;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -63,6 +72,12 @@ static NSString *states[] = {
 
 - (void)movieController:(KxMovieController *)controller playerStateDidChange:(KxMoviePlayerState)status {
     NSLog(@"%@", states[status]);
+}
+
+- (void)movieController:(KxMovieController *)controller positionDidChange:(NSTimeInterval)position {
+    NSLog(@"Position: %f", position);
+    self.slider.value = position / self.movieController.duration;
+    self.label.text = [NSString stringWithFormat:@"%.1f/%.0f", position, self.movieController.duration];
 }
 
 @end
