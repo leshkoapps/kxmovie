@@ -249,6 +249,7 @@ enum {
     
     self.playerState = KxMoviePlayerStateCaching;
     self.playing = YES;
+    _buffered = YES;
     _interrupted = NO;
     _tickCorrectionTime = 0;
     _tickCounter = 0;
@@ -702,8 +703,12 @@ enum {
     }
     
     CGFloat interval = 0;
-    if (!_buffered)
+    if (!_buffered) {
+//        if (self.isPlaying) {
+//            self.playerState = KxMoviePlayerStatePlaying;
+//        }
         interval = [self presentFrame];
+    }
     
     if (self.playing) {
         
