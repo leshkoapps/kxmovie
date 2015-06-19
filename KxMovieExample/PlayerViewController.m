@@ -34,9 +34,10 @@ static NSString *states[] = {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"http://7xjclq.com2.z0.glb.qiniucdn.com/lq6MgqE5HvVkcJPh43wG5PGHqzsa"
+    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"XXXXX"
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
-                                                                                             KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill)}];
+                                                                                             KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
+                                                                                             KxMovidParameterAutoPlayEnable: @(YES)}];
     movieController.delegate = self;
     self.movieController = movieController;
     CGRect frame = CGRectMake(0, 0, CGRectGetWidth(self.view.bounds) * 0.8, CGRectGetHeight(self.view.bounds) * 0.8);
@@ -54,6 +55,13 @@ static NSString *states[] = {
     label.text = @"--/--";
     [self.view addSubview:label];
     self.label = label;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    [self.view addGestureRecognizer:tap];
+}
+
+- (void)handleTap:(UITapGestureRecognizer *)tap {
+    self.movieController.isPlaying ? [self.movieController pause] : [self.movieController play];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

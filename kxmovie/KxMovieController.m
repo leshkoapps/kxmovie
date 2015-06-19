@@ -740,7 +740,9 @@ enum {
         const NSTimeInterval time = MAX(interval + correction, 0.01);
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [self tick];
+            if (UIApplicationStateBackground != [UIApplication sharedApplication].applicationState) {
+                [self tick];
+            }
         });
     }
 }
