@@ -283,6 +283,10 @@ enum {
     [self pauseWithPlayerState:KxPlayerStatePaused];
 }
 
+- (void)seekTo:(NSTimeInterval)position {
+    [self setMoviePosition:position];
+}
+
 - (void)setMoviePosition:(NSTimeInterval)position {
     BOOL playMode = self.playing;
     

@@ -43,6 +43,6 @@
 - (void)forward;
 - (void)rewind;
 
-- (void)setMoviePosition:(NSTimeInterval)position;
+- (void)seekTo:(NSTimeInterval)position;
 
 @end

@@ -22,4 +22,25 @@
 
 @interface KxAudioController : NSObject
 
++ (id)audioControllerWithContentPath:(NSString *)path
+                          parameters:(NSDictionary *)parameters;
+
+@property (nonatomic, weak) id<KxAudioControllerDelegate> delegate;
+
+@property (nonatomic, assign, getter=isMuted) BOOL  muted;  // default as NO
+
+@property (nonatomic, assign, readonly) KxPlayerState playerState;
+@property (nonatomic, readonly, getter=isPlaying) BOOL playing;
+@property (nonatomic, assign, readonly) CGFloat audioVolume;
+@property (nonatomic, assign, readonly) NSTimeInterval duration;
+@property (nonatomic, assign, readonly) NSTimeInterval position;
+
+- (void)play;
+- (void)pause;
+- (void)forward;
+- (void)rewind;
+
+- (void)seekTo:(NSTimeInterval)position;
+
+
 @end
