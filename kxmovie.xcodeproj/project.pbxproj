@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		76591FBC1B5896EE00B91835 /* KxAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76591FBB1B5896EE00B91835 /* KxAudioController.m */; };
 		76ACCDED1AFA358B001FAF7F /* KxMovieController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76ACCDEC1AFA358B001FAF7F /* KxMovieController.m */; };
 		76ACCDF01AFA4032001FAF7F /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76ACCDEF1AFA4032001FAF7F /* PlayerViewController.m */; };
 		76ACCDF11AFA418C001FAF7F /* KxMovieController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 76ACCDEB1AFA358B001FAF7F /* KxMovieController.h */; };
@@ -42,9 +43,7 @@
 		87E794271639107F000A0848 /* kxmovie.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 87E7941F1639107F000A0848 /* kxmovie.bundle */; };
 		87E794281639107F000A0848 /* KxMovieDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E794211639107F000A0848 /* KxMovieDecoder.m */; };
 		87E794291639107F000A0848 /* KxMovieGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E794231639107F000A0848 /* KxMovieGLView.m */; };
-		87E7942A1639107F000A0848 /* KxMovieViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E794251639107F000A0848 /* KxMovieViewController.m */; };
 		87E7942F1639108E000A0848 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E7942C1639108E000A0848 /* AppDelegate.m */; };
-		87E794301639108E000A0848 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E7942E1639108E000A0848 /* MainViewController.m */; };
 		87E7943F1639110F000A0848 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E7943D163910FB000A0848 /* CoreAudio.framework */; };
 		87E794401639110F000A0848 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E7943B163910F6000A0848 /* AudioToolbox.framework */; };
 		87E794411639110F000A0848 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E79439163910EA000A0848 /* Accelerate.framework */; };
@@ -61,7 +60,6 @@
 		87FD6182163A75AF0090956E /* KxAudioManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E7941E1639107F000A0848 /* KxAudioManager.m */; };
 		87FD6183163A75B10090956E /* KxMovieDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E794211639107F000A0848 /* KxMovieDecoder.m */; };
 		87FD6184163A75B50090956E /* KxMovieGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E794231639107F000A0848 /* KxMovieGLView.m */; };
-		87FD6185163A75B70090956E /* KxMovieViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E794251639107F000A0848 /* KxMovieViewController.m */; };
 		87FD618D163A75CF0090956E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E7940016390F6D000A0848 /* CoreGraphics.framework */; };
 		87FD618E163A75D20090956E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E7945216391BD2000A0848 /* MediaPlayer.framework */; };
 		87FD618F163A75D60090956E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87E7943D163910FB000A0848 /* CoreAudio.framework */; };
@@ -95,6 +93,9 @@
 		49D953B9D2DC48FBB580C6AC /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E6AB9BC191288370010CAA1 /* kxmovie-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "kxmovie-Prefix.pch"; sourceTree = "<group>"; };
 		4E6AB9BD19128FDA0010CAA1 /* KxLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KxLogger.h; sourceTree = "<group>"; };
+		76591FBA1B5896EE00B91835 /* KxAudioController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxAudioController.h; sourceTree = "<group>"; };
+		76591FBB1B5896EE00B91835 /* KxAudioController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxAudioController.m; sourceTree = "<group>"; };
+		76591FBD1B58973300B91835 /* KxTypeDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KxTypeDefines.h; sourceTree = "<group>"; };
 		76ACCDEB1AFA358B001FAF7F /* KxMovieController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieController.h; sourceTree = "<group>"; };
 		76ACCDEC1AFA358B001FAF7F /* KxMovieController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieController.m; sourceTree = "<group>"; };
 		76ACCDEE1AFA4032001FAF7F /* PlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerViewController.h; sourceTree = "<group>"; };
@@ -255,6 +256,7 @@
 		87FD6177163A75440090956E /* kxmovie */ = {
 			isa = PBXGroup;
 			children = (
+				76591FBD1B58973300B91835 /* KxTypeDefines.h */,
 				87E7941F1639107F000A0848 /* kxmovie.bundle */,
 				87E7946116394577000A0848 /* KxAudioManager.h */,
 				87E7941E1639107F000A0848 /* KxAudioManager.m */,
@@ -266,6 +268,8 @@
 				87E794251639107F000A0848 /* KxMovieViewController.m */,
 				76ACCDEB1AFA358B001FAF7F /* KxMovieController.h */,
 				76ACCDEC1AFA358B001FAF7F /* KxMovieController.m */,
+				76591FBA1B5896EE00B91835 /* KxAudioController.h */,
+				76591FBB1B5896EE00B91835 /* KxAudioController.m */,
 				4E6AB9BD19128FDA0010CAA1 /* KxLogger.h */,
 				4E6AB9BC191288370010CAA1 /* kxmovie-Prefix.pch */,
 			);
@@ -416,10 +420,8 @@
 				87E794281639107F000A0848 /* KxMovieDecoder.m in Sources */,
 				76ACCDF21AFA41BE001FAF7F /* KxMovieController.m in Sources */,
 				87E794291639107F000A0848 /* KxMovieGLView.m in Sources */,
-				87E7942A1639107F000A0848 /* KxMovieViewController.m in Sources */,
 				76ACCDF01AFA4032001FAF7F /* PlayerViewController.m in Sources */,
 				87E7942F1639108E000A0848 /* AppDelegate.m in Sources */,
-				87E794301639108E000A0848 /* MainViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,10 +430,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				87FD6182163A75AF0090956E /* KxAudioManager.m in Sources */,
+				76591FBC1B5896EE00B91835 /* KxAudioController.m in Sources */,
 				87FD6183163A75B10090956E /* KxMovieDecoder.m in Sources */,
 				87FD6184163A75B50090956E /* KxMovieGLView.m in Sources */,
 				76ACCDED1AFA358B001FAF7F /* KxMovieController.m in Sources */,
-				87FD6185163A75B70090956E /* KxMovieViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

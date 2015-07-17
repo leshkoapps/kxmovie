@@ -14,11 +14,12 @@
 #import "KxMovieGLView.h"
 #import "KxLogger.h"
 
-NSString * const KxMovieParameterMinBufferedDuration = @"KxMovieParameterMinBufferedDuration";
-NSString * const KxMovieParameterMaxBufferedDuration = @"KxMovieParameterMaxBufferedDuration";
+NSString * const KxPlayerParameterMinBufferedDuration = @"KxPlayerParameterMinBufferedDuration";
+NSString * const KxPlayerParameterMaxBufferedDuration = @"KxPlayerParameterMaxBufferedDuration";
+NSString * const KxPlayerParameterAutoPlayEnable = @"KxPlayerParameterAutoPlayEnable";
+
 NSString * const KxMovieParameterDisableDeinterlacing = @"KxMovieParameterDisableDeinterlacing";
 NSString * const KxMovieParameterFrameViewContentMode = @"KxMovieParameterFrameViewContentMode";
-NSString * const KxMovidParameterAutoPlayEnable = @"KxMovidParameterAutoPlayEnable";
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +108,7 @@ enum {
 @property (readwrite) BOOL decoding;
 @property (readwrite, strong) KxArtworkFrame *artworkFrame;
 @property (nonatomic, assign) UIViewContentMode frameViewContentMode;
-@property (nonatomic, assign) KxMoviePlayerState playerState;
+@property (nonatomic, assign) KxPlayerState playerState;
 
 @end
 
@@ -128,7 +129,7 @@ enum {
     
     self = [super init];
     if (self) {
-        _playerState = KxMoviePlayerStateUnknow;
+        _playerState = KxPlayerStateUnknow;
         _muted = NO;
         _moviePosition = 0;
         _userInteractionEnable = YES;
@@ -146,7 +147,7 @@ enum {
         
         [self loadPlayerView];
         
-        self.playerState = KxMoviePlayerStatePreparing;
+        self.playerState = KxPlayerStatePreparing;
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             __strong KxMovieController *strongSelf = weakSelf;
@@ -187,7 +188,7 @@ enum {
 - (void)didReceiveMemoryWarning {
     if (self.playing) {
         
-        [self pauseWithPlayerState:KxMoviePlayerStateCaching];
+        [self pauseWithPlayerState:KxPlayerStateCaching];
         [self freeBufferedFrames];
         
         if (_maxBufferedDuration > 0) {
@@ -247,7 +248,7 @@ enum {
     if (_interrupted)
         return;
     
-    self.playerState = KxMoviePlayerStateCaching;
+    self.playerState = KxPlayerStateCaching;
     self.playing = YES;
     _buffered = YES;
     _interrupted = NO;
@@ -267,7 +268,7 @@ enum {
     LoggerStream(1, @"play movie");
 }
 
-- (void)pauseWithPlayerState:(KxMoviePlayerState)playerState {
+- (void)pauseWithPlayerState:(KxPlayerState)playerState {
     if (!self.playing)
         return;
     
@@ -279,7 +280,7 @@ enum {
 }
 
 - (void)pause {
-    [self pauseWithPlayerState:KxMoviePlayerStatePaused];
+    [self pauseWithPlayerState:KxPlayerStatePaused];
 }
 
 - (void)setMoviePosition:(NSTimeInterval)position {
@@ -321,7 +322,7 @@ enum {
 
 #pragma mark - private
 
-- (void)setPlayerState:(KxMoviePlayerState)playerState {
+- (void)setPlayerState:(KxPlayerState)playerState {
     if (_playerState == playerState) {
         return;
     }
@@ -368,11 +369,11 @@ enum {
             
             id val;
             
-            val = [_parameters valueForKey: KxMovieParameterMinBufferedDuration];
+            val = [_parameters valueForKey: KxPlayerParameterMinBufferedDuration];
             if ([val isKindOfClass:[NSNumber class]])
                 _minBufferedDuration = [val floatValue];
             
-            val = [_parameters valueForKey: KxMovieParameterMaxBufferedDuration];
+            val = [_parameters valueForKey: KxPlayerParameterMaxBufferedDuration];
             if ([val isKindOfClass:[NSNumber class]])
                 _maxBufferedDuration = [val floatValue];
             
@@ -390,12 +391,12 @@ enum {
             [self setupPresentView];
         }
         
-        self.playerState = KxMoviePlayerStateReady;
+        self.playerState = KxPlayerStateReady;
         if ([self.delegate respondsToSelector:@selector(movieControllerDecoderHasBeenReady:)]) {
             [self.delegate movieControllerDecoderHasBeenReady:self];
         }
         
-        id value = _parameters[KxMovidParameterAutoPlayEnable];
+        id value = _parameters[KxPlayerParameterAutoPlayEnable];
         if (value && [value isKindOfClass:[NSNumber class]]) {
             BOOL autoPlayEnable = [value boolValue];
             if (autoPlayEnable) {
@@ -699,13 +700,13 @@ enum {
         
         _tickCorrectionTime = 0;
         _buffered = NO;
-        self.playerState = KxMoviePlayerStatePlaying;
+        self.playerState = KxPlayerStatePlaying;
     }
     
     CGFloat interval = 0;
     if (!_buffered) {
 //        if (self.isPlaying) {
-//            self.playerState = KxMoviePlayerStatePlaying;
+//            self.playerState = KxPlayerStatePlaying;
 //        }
         interval = [self presentFrame];
     }
@@ -719,14 +720,14 @@ enum {
         if (0 == leftFrames) {
             
             if (_decoder.isEOF) {
-                [self pauseWithPlayerState:KxMoviePlayerStateEnded];
+                [self pauseWithPlayerState:KxPlayerStateEnded];
                 
                 return;
             }
             
             if (_minBufferedDuration > 0 && !_buffered) {
                 _buffered = YES;
-                self.playerState = KxMoviePlayerStateCaching;
+                self.playerState = KxPlayerStateCaching;
             }
         }
         

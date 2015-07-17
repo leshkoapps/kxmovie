@@ -37,7 +37,7 @@ static NSString *states[] = {
     KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"XXXXX"
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
                                                                                              KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
-                                                                                             KxMovidParameterAutoPlayEnable: @(YES)}];
+                                                                                             KxPlayerParameterAutoPlayEnable: @(YES)}];
     movieController.delegate = self;
     self.movieController = movieController;
     CGRect frame = CGRectMake(0, 0, CGRectGetWidth(self.view.bounds) * 0.8, CGRectGetHeight(self.view.bounds) * 0.8);
@@ -78,7 +78,7 @@ static NSString *states[] = {
     [self.movieController setMoviePosition:slider.value * self.movieController.duration];
 }
 
-- (void)movieController:(KxMovieController *)controller playerStateDidChange:(KxMoviePlayerState)status {
+- (void)movieController:(KxMovieController *)controller playerStateDidChange:(KxPlayerState)status {
     NSLog(@"%@", states[status]);
 }
 
