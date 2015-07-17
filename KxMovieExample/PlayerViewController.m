@@ -75,7 +75,7 @@ static NSString *states[] = {
 - (void)sliderValueChanged:(id)sender {
     UISlider *slider = (UISlider *)sender;
     NSLog(@"%f", slider.value);
-    [self.movieController setMoviePosition:slider.value * self.movieController.duration];
+    [self.movieController seekTo:slider.value * self.movieController.duration];
 }
 
 - (void)movieController:(KxMovieController *)controller playerStateDidChange:(KxPlayerState)status {

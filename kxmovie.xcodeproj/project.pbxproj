@@ -22,6 +22,10 @@
 
 /* Begin PBXBuildFile section */
 		76591FBC1B5896EE00B91835 /* KxAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76591FBB1B5896EE00B91835 /* KxAudioController.m */; };
+		76591FC11B58A45600B91835 /* AudioViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76591FC01B58A45600B91835 /* AudioViewController.m */; };
+		76591FC21B58A5AE00B91835 /* KxTypeDefines.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 76591FBD1B58973300B91835 /* KxTypeDefines.h */; };
+		76591FC31B58A5B600B91835 /* KxAudioController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 76591FBA1B5896EE00B91835 /* KxAudioController.h */; };
+		76591FC41B58A5CD00B91835 /* KxAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76591FBB1B5896EE00B91835 /* KxAudioController.m */; };
 		76ACCDED1AFA358B001FAF7F /* KxMovieController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76ACCDEC1AFA358B001FAF7F /* KxMovieController.m */; };
 		76ACCDF01AFA4032001FAF7F /* PlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76ACCDEF1AFA4032001FAF7F /* PlayerViewController.m */; };
 		76ACCDF11AFA418C001FAF7F /* KxMovieController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 76ACCDEB1AFA358B001FAF7F /* KxMovieController.h */; };
@@ -77,6 +81,8 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				76591FC31B58A5B600B91835 /* KxAudioController.h in CopyFiles */,
+				76591FC21B58A5AE00B91835 /* KxTypeDefines.h in CopyFiles */,
 				76ACCDF11AFA418C001FAF7F /* KxMovieController.h in CopyFiles */,
 				76FD7A591A59A61600D714D9 /* KxAudioManager.h in CopyFiles */,
 				76FD7A5A1A59A61600D714D9 /* KxMovieDecoder.h in CopyFiles */,
@@ -96,6 +102,8 @@
 		76591FBA1B5896EE00B91835 /* KxAudioController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxAudioController.h; sourceTree = "<group>"; };
 		76591FBB1B5896EE00B91835 /* KxAudioController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxAudioController.m; sourceTree = "<group>"; };
 		76591FBD1B58973300B91835 /* KxTypeDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KxTypeDefines.h; sourceTree = "<group>"; };
+		76591FBF1B58A45600B91835 /* AudioViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioViewController.h; sourceTree = "<group>"; };
+		76591FC01B58A45600B91835 /* AudioViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioViewController.m; sourceTree = "<group>"; };
 		76ACCDEB1AFA358B001FAF7F /* KxMovieController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieController.h; sourceTree = "<group>"; };
 		76ACCDEC1AFA358B001FAF7F /* KxMovieController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieController.m; sourceTree = "<group>"; };
 		76ACCDEE1AFA4032001FAF7F /* PlayerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerViewController.h; sourceTree = "<group>"; };
@@ -234,6 +242,8 @@
 				87E7942C1639108E000A0848 /* AppDelegate.m */,
 				87E7942D1639108E000A0848 /* MainViewController.h */,
 				87E7942E1639108E000A0848 /* MainViewController.m */,
+				76591FBF1B58A45600B91835 /* AudioViewController.h */,
+				76591FC01B58A45600B91835 /* AudioViewController.m */,
 				76ACCDEE1AFA4032001FAF7F /* PlayerViewController.h */,
 				76ACCDEF1AFA4032001FAF7F /* PlayerViewController.m */,
 				87E7940316390F6D000A0848 /* Supporting Files */,
@@ -328,6 +338,11 @@
 					};
 					87E793F716390F6D000A0848 = {
 						DevelopmentTeam = 2LA7SLA9PL;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -416,6 +431,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				87E7940916390F6D000A0848 /* main.m in Sources */,
+				76591FC41B58A5CD00B91835 /* KxAudioController.m in Sources */,
+				76591FC11B58A45600B91835 /* AudioViewController.m in Sources */,
 				87E794261639107F000A0848 /* KxAudioManager.m in Sources */,
 				87E794281639107F000A0848 /* KxMovieDecoder.m in Sources */,
 				76ACCDF21AFA41BE001FAF7F /* KxMovieController.m in Sources */,

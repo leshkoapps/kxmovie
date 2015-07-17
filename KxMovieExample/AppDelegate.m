@@ -11,12 +11,13 @@
 
 #import "AppDelegate.h"
 #import "PlayerViewController.h"
+#import "AudioViewController.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    PlayerViewController *player = [[PlayerViewController alloc] init];
+    AudioViewController *player = [[AudioViewController alloc] init];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = player;
