@@ -31,7 +31,7 @@ KxAudioControllerDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    KxAudioController *audioController = [KxAudioController audioControllerWithContentPath:@"rtmp://vlv5lt.live1.z1.pili.qiniucdn.com/dayzhtest/test1"
+    KxAudioController *audioController = [KxAudioController audioControllerWithContentPath:@"rtmp://vlv5lt.live1.z1.pili.qiniucdn.com/dayzhtest/test"
                                                                                 parameters:@{KxPlayerParameterAutoPlayEnable: @(YES)}];
     audioController.delegate = self;
     self.audioController = audioController;
@@ -48,6 +48,9 @@ KxAudioControllerDelegate
 #pragma mark - <KxAudioControllerDelegate>
 
 - (void)audioController:(KxAudioController *)controller playerStateDidChange:(KxPlayerState)status {
+#ifdef NSLog
+#undef NSLog
+#endif
     NSLog(@"%@", states[status]);
 }
 

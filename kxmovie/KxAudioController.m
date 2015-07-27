@@ -391,28 +391,9 @@ enum {
 #ifdef DUMP_AUDIO_DATA
                         LoggerAudio(2, @"Audio frame position: %f", frame.position);
 #endif
-                        if (_decoder.validVideo) {
-                            
-                            const CGFloat delta = _moviePosition - frame.position;
-                            
-                            if (delta < -0.1) {
-                                
-                                memset(outData, 0, numFrames * numChannels * sizeof(float));
-                                break; // silence and exit
-                            }
-                            
-                            [_audioFrames removeObjectAtIndex:0];
-                            
-                            if (delta > 0.1 && count > 1) {
-                                continue;
-                            }
-                            
-                        } else {
-                            
-                            [_audioFrames removeObjectAtIndex:0];
-                            _moviePosition = frame.position;
-                            _bufferedDuration -= frame.duration;
-                        }
+                        [_audioFrames removeObjectAtIndex:0];
+                        _moviePosition = frame.position;
+                        _bufferedDuration -= frame.duration;
                         
                         _currentAudioFramePos = 0;
                         _currentAudioFrame = frame.samples;
@@ -481,8 +462,7 @@ enum {
             for (KxMovieFrame *frame in frames)
                 if (frame.type == KxMovieFrameTypeAudio) {
                     [_audioFrames addObject:frame];
-                    if (!_decoder.validVideo)
-                        _bufferedDuration += frame.duration;
+                    _bufferedDuration += frame.duration;
                 }
         }
         
