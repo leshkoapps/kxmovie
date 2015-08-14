@@ -35,6 +35,9 @@
 @property (nonatomic, assign, readonly) NSTimeInterval duration;
 @property (nonatomic, assign, readonly) NSTimeInterval position;
 
+/// 超时时长，默认为 8s
+@property (nonatomic, assign) NSTimeInterval    timeout;
+
 - (void)play;
 - (void)pause;
 - (void)forward;

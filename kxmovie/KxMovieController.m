@@ -325,6 +325,14 @@ enum {
     return _moviePosition;
 }
 
+- (NSTimeInterval)timeout {
+    return _decoder.timeout;
+}
+
+- (void)setTimeout:(NSTimeInterval)timeout {
+    _decoder.timeout = timeout;
+}
+
 #pragma mark - private
 
 - (void)setPlayerState:(KxPlayerState)playerState {

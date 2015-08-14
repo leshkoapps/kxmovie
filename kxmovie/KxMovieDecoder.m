@@ -18,7 +18,7 @@
 #import "KxAudioManager.h"
 #import "KxLogger.h"
 
-#define kDefaultTimeout 3
+#define kDefaultTimeout 8
 
 ////////////////////////////////////////////////////////////////////////////////
 NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
