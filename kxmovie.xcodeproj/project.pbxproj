@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		7626904F1B7DD3AE00B1C115 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E7942E1639108E000A0848 /* MainViewController.m */; };
 		76591FBC1B5896EE00B91835 /* KxAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76591FBB1B5896EE00B91835 /* KxAudioController.m */; };
 		76591FC11B58A45600B91835 /* AudioViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 76591FC01B58A45600B91835 /* AudioViewController.m */; };
 		76591FC21B58A5AE00B91835 /* KxTypeDefines.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 76591FBD1B58973300B91835 /* KxTypeDefines.h */; };
@@ -433,6 +434,7 @@
 				87E7940916390F6D000A0848 /* main.m in Sources */,
 				76591FC41B58A5CD00B91835 /* KxAudioController.m in Sources */,
 				76591FC11B58A45600B91835 /* AudioViewController.m in Sources */,
+				7626904F1B7DD3AE00B1C115 /* MainViewController.m in Sources */,
 				87E794261639107F000A0848 /* KxAudioManager.m in Sources */,
 				87E794281639107F000A0848 /* KxMovieDecoder.m in Sources */,
 				76ACCDF21AFA41BE001FAF7F /* KxMovieController.m in Sources */,

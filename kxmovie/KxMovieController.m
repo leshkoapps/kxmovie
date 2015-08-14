@@ -170,6 +170,7 @@ enum {
 
 - (void)dealloc {
     [self pause];
+    [self.decoder closeFile];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     

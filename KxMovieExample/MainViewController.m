@@ -10,7 +10,7 @@
 //  KxMovie is licenced under the LGPL v3, see lgpl-3.0.txt
 
 #import "MainViewController.h"
-#import "KxMovieViewController.h"
+#import "PlayerViewController.h"
 
 @interface MainViewController () {
     NSArray *_localMovies;
@@ -227,22 +227,8 @@
         path = _localMovies[indexPath.row];
     }
     
-    // increase buffering for .wmv, it solves problem with delaying audio frames
-    if ([path.pathExtension isEqualToString:@"wmv"])
-        parameters[KxMovieParameterMinBufferedDuration] = @(5.0);
-    
-    // disable deinterlacing for iPhone, because it's complex operation can cause stuttering
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
-        parameters[KxMovieParameterDisableDeinterlacing] = @(YES);
-    
-    // disable buffering
-    //parameters[KxMovieParameterMinBufferedDuration] = @(0.0f);
-    //parameters[KxMovieParameterMaxBufferedDuration] = @(0.0f);
-    
-    KxMovieViewController *vc = [KxMovieViewController movieViewControllerWithContentPath:path
-                                                                               parameters:parameters];
-    [self presentViewController:vc animated:YES completion:nil];
-    //[self.navigationController pushViewController:vc animated:YES];    
+    PlayerViewController *vc = [[PlayerViewController alloc] init];
+    [self.navigationController pushViewController:vc animated:YES];
 
     LoggerApp(1, @"Playing a movie: %@", path);
 }

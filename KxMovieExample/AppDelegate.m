@@ -12,15 +12,17 @@
 #import "AppDelegate.h"
 #import "PlayerViewController.h"
 #import "AudioViewController.h"
+#import "MainViewController.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    PlayerViewController *player = [[PlayerViewController alloc] init];
+    MainViewController *vc = [[MainViewController alloc] init];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:vc];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = player;
+    self.window.rootViewController = navController;
     [self.window makeKeyAndVisible];
 
     LoggerApp(1, @"Application didFinishLaunchingWithOptions");

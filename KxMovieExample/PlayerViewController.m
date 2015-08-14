@@ -72,6 +72,11 @@ static NSString *states[] = {
     });
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.movieController pause];
+    [super viewWillDisappear:animated];
+}
+
 - (void)sliderValueChanged:(id)sender {
     UISlider *slider = (UISlider *)sender;
     NSLog(@"%f", slider.value);

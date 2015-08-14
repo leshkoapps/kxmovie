@@ -18,7 +18,7 @@
 #import "KxAudioManager.h"
 #import "KxLogger.h"
 
-#define kDefaultTimeout 8
+#define kDefaultTimeout 3
 
 ////////////////////////////////////////////////////////////////////////////////
 NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
@@ -1365,9 +1365,10 @@ static int interrupt_callback(void *ctx);
 
 - (NSArray *) decodeFrames: (CGFloat) minDuration
 {
-    if (_videoStream == -1 &&
-        _audioStream == -1)
+    if ((_videoStream == -1 && _audioStream == -1) ||
+        !_formatCtx) {
         return nil;
+    }
 
     NSMutableArray *result = [NSMutableArray array];
     
@@ -1378,7 +1379,10 @@ static int interrupt_callback(void *ctx);
     BOOL finished = NO;
     
     while (!finished) {
-        
+        if (!_formatCtx) {
+            _isEOF = YES;
+            break;
+        }
         if (av_read_frame(_formatCtx, &packet) < 0) {
             _isEOF = YES;
             break;
