@@ -34,7 +34,7 @@ static NSString *states[] = {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"XXXXX"
+    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"xxx"
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
                                                                                              KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
                                                                                              KxPlayerParameterAutoPlayEnable: @(YES)}];

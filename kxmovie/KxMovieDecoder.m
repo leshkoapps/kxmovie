@@ -18,6 +18,8 @@
 #import "KxAudioManager.h"
 #import "KxLogger.h"
 
+#define kDefaultTimeout 3
+
 ////////////////////////////////////////////////////////////////////////////////
 NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
 static void FFLog(void* context, int level, const char* format, va_list args);
@@ -705,6 +707,15 @@ static int interrupt_callback(void *ctx);
         [mp openFile:path error:perror];
     }
     return mp;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.timeout = kDefaultTimeout;
+    }
+    
+    return self;
 }
 
 - (void) dealloc
@@ -1407,6 +1418,8 @@ static int interrupt_callback(void *ctx);
                         
                         [result addObject:frame];
                         
+                        self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
+                        
                         _position = frame.position;
                         decodedDuration += frame.duration;
                         if (decodedDuration > minDuration)
@@ -1443,7 +1456,9 @@ static int interrupt_callback(void *ctx);
                     if (frame) {
                         
                         [result addObject:frame];
-                                                
+                        
+                        self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
+                        
                         if (_videoStream == -1) {
                             
                             _position = frame.position;
@@ -1518,7 +1533,15 @@ static int interrupt_callback(void *ctx)
 {
     if (!ctx)
         return 0;
+    
     __unsafe_unretained KxMovieDecoder *p = (__bridge KxMovieDecoder *)ctx;
+    
+    NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+    if (p.lastFrameTS && now - p.lastFrameTS > p.timeout) {
+        [p closeFile];
+        return YES;
+    }
+    
     const BOOL r = [p interruptDecoder];
     if (r) LoggerStream(1, @"DEBUG: INTERRUPT_CALLBACK!");
     return r;

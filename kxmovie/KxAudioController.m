@@ -233,6 +233,7 @@ enum {
     self.playing = NO;
     //_interrupted = YES;
     [self enableAudio:NO];
+    self.decoder.lastFrameTS = 0;
     LoggerStream(1, @"pause movie");
 }
 
