@@ -144,6 +144,9 @@ enum {
                                                  selector:@selector(didReceiveMemoryWarning)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
+        if (parameters[KxPlayerParameterAutoPlayEnable]) {
+            [self play];
+        }
     }
     return self;
 }
@@ -457,14 +460,6 @@ enum {
         self.playerState = KxPlayerStateReady;
         if ([self.delegate respondsToSelector:@selector(movieControllerDecoderHasBeenReady:)]) {
             [self.delegate movieControllerDecoderHasBeenReady:self];
-        }
-        
-        id value = _parameters[KxPlayerParameterAutoPlayEnable];
-        if (value && [value isKindOfClass:[NSNumber class]]) {
-            BOOL autoPlayEnable = [value boolValue];
-            if (autoPlayEnable) {
-                [self play];
-            }
         }
     } else {
         if (!_interrupted) {

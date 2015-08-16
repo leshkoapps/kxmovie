@@ -38,6 +38,7 @@ static NSString *states[] = {
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
                                                                                              KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
                                                                                              KxPlayerParameterAutoPlayEnable: @(YES)}];
+    movieController.timeout = 5;
     movieController.delegate = self;
     self.movieController = movieController;
     
@@ -63,14 +64,6 @@ static NSString *states[] = {
 
 - (void)handleTap:(UITapGestureRecognizer *)tap {
     self.movieController.isPlaying ? [self.movieController pause] : [self.movieController play];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.movieController play];
-    });
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

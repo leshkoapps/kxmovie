@@ -159,7 +159,12 @@ enum {
         }];
         
         self.observers = [@[observer1, observer2] mutableCopy];
+        
+        if (parameters[KxPlayerParameterAutoPlayEnable]) {
+            [self play];
+        }
     }
+    
     return self;
 }
 
@@ -439,14 +444,6 @@ enum {
         self.playerState = KxPlayerStateReady;
         if ([self.delegate respondsToSelector:@selector(audioControllerDecoderHasBeenReady:)]) {
             [self.delegate audioControllerDecoderHasBeenReady:self];
-        }
-        
-        id value = _parameters[KxPlayerParameterAutoPlayEnable];
-        if (value && [value isKindOfClass:[NSNumber class]]) {
-            BOOL autoPlayEnable = [value boolValue];
-            if (autoPlayEnable) {
-                [self play];
-            }
         }
     } else {
         if (!_interrupted) {
