@@ -18,6 +18,9 @@
 - (void)audioController:(KxAudioController *)controller failureWithError:(NSError *)error;
 - (void)audioController:(KxAudioController *)controller positionDidChange:(NSTimeInterval)position;
 
+- (void)audioControllerWillBeginBackgroundTask:(KxAudioController *)controller;
+- (void)audioController:(KxAudioController *)controller willEndBackgroundTask:(BOOL)isExpirationOccured;
+
 @end
 
 @interface KxAudioController : NSObject
@@ -38,8 +41,13 @@
 /// 超时时长，默认为 8s
 @property (nonatomic, assign) NSTimeInterval    timeout;
 
+/// 是否支持后台播放，默认为 YES
+@property (nonatomic, assign, getter=isBackgroundPlayEnable) BOOL  backgroundPlayEnable;
+
+- (void)prepareToPlayWithCompletion:(void (^)(BOOL success))handler;
 - (void)play;
 - (void)pause;
+- (void)stop;
 - (void)forward;
 - (void)rewind;
 

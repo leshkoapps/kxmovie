@@ -10,13 +10,12 @@
 #import "KxAudioController.h"
 
 static NSString *states[] = {
-    @"Unknow",
+    @"Stopped",
     @"Preparing",
     @"Ready",
     @"Caching",
     @"Playing",
     @"Paused",
-    @"Ended"
 };
 @interface AudioViewController ()
 <
@@ -31,9 +30,10 @@ KxAudioControllerDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    KxAudioController *audioController = [KxAudioController audioControllerWithContentPath:@"rtmp://vlv5lt.live1.z1.pili.qiniucdn.com/dayzhtest/test"
+    KxAudioController *audioController = [KxAudioController audioControllerWithContentPath:@"xxx"
                                                                                 parameters:@{KxPlayerParameterAutoPlayEnable: @(YES)}];
     audioController.delegate = self;
+    audioController.timeout = 30;
     self.audioController = audioController;
 }
 
@@ -43,6 +43,11 @@ KxAudioControllerDelegate
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.audioController play];
     });
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.audioController stop];
+    [super viewWillDisappear:animated];
 }
 
 #pragma mark - <KxAudioControllerDelegate>

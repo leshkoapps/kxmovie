@@ -86,6 +86,7 @@ enum {
     BOOL                _infoMode;
     BOOL                _restoreIdleTimer;
     BOOL                _interrupted;
+    NSTimeInterval      _timeout;
     
     KxMovieGLView       *_glView;
     UIImageView         *_imageView;
@@ -102,6 +103,7 @@ enum {
     NSDictionary        *_parameters;
 }
 
+@property (nonatomic, strong) NSString  *path;
 @property (nonatomic, strong) KxMovieDecoder *decoder;
 @property (nonatomic, readwrite, strong) UIView    *playerView;
 @property (nonatomic, readwrite, getter=isPlaying) BOOL playing;
@@ -129,36 +131,14 @@ enum {
     
     self = [super init];
     if (self) {
-        _playerState = KxPlayerStateUnknow;
+        _path = path;
+        _playerState = KxPlayerStateStopped;
         _muted = NO;
         _moviePosition = 0;
         _userInteractionEnable = YES;
         _parameters = parameters;
         
-        __weak KxMovieController *weakSelf = self;
-        
-        KxMovieDecoder *decoder = [[KxMovieDecoder alloc] init];
-        decoder.interruptCallback = ^BOOL(){
-            
-            __strong KxMovieController *strongSelf = weakSelf;
-            return strongSelf ? [strongSelf interruptDecoder] : YES;
-        };
-        self.decoder = decoder;
-        
         [self loadPlayerView];
-        
-        self.playerState = KxPlayerStatePreparing;
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            __strong KxMovieController *strongSelf = weakSelf;
-            
-            NSError *error = nil;
-            [strongSelf.decoder openFile:path error:&error];
-            
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [strongSelf setMovieDecoder:decoder withError:error];
-            });
-        });
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveMemoryWarning)
@@ -169,8 +149,7 @@ enum {
 }
 
 - (void)dealloc {
-    [self pause];
-    [self.decoder closeFile];
+    [self stop];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
@@ -236,37 +215,81 @@ enum {
 
 #pragma mark - public
 
-- (void)play {
-    if (self.playing)
-        return;
-    
-    if (!_decoder.validVideo &&
-        !_decoder.validAudio) {
-        
+- (void)prepareToPlayWithCompletion:(void (^)(BOOL success))handler {
+    if (KxPlayerStatePreparing == self.playerState) {
         return;
     }
+    self.playerState = KxPlayerStatePreparing;
+    
+    __weak KxMovieController *weakSelf = self;
+    
+    KxMovieDecoder *decoder = [[KxMovieDecoder alloc] init];
+    decoder.interruptCallback = ^BOOL(){
+        
+        __strong KxMovieController *strongSelf = weakSelf;
+        return strongSelf ? [strongSelf interruptDecoder] : YES;
+    };
+    self.decoder = decoder;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __strong KxMovieController *strongSelf = weakSelf;
+        
+        NSError *error = nil;
+        BOOL success = [strongSelf.decoder openFile:self.path error:&error];
+        
+        if (handler) {
+            handler(success);
+        }
+        
+        if (!success) {
+            strongSelf.playerState = KxPlayerStateStopped;
+            return ;
+        }
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [strongSelf setMovieDecoder:decoder withError:error];
+        });
+    });
+}
+
+- (void)play {
+    if (self.isPlaying)
+        return;
     
     if (_interrupted)
         return;
     
-    self.playerState = KxPlayerStateCaching;
-    self.playing = YES;
-    _buffered = YES;
-    _interrupted = NO;
-    _tickCorrectionTime = 0;
-    _tickCounter = 0;
+    void (^playBlock)(void)  = ^{
+        self.playerState = KxPlayerStateCaching;
+        self.playing = YES;
+        _buffered = YES;
+        _interrupted = NO;
+        _tickCorrectionTime = 0;
+        _tickCounter = 0;
+        
+        [self asyncDecodeFrames];
+        
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self tick];
+        });
+        
+        if (_decoder.validAudio)
+            [self enableAudio:YES];
+        
+        LoggerStream(1, @"play movie");
+    };
     
-    [self asyncDecodeFrames];
-    
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC);
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self tick];
-    });
-    
-    if (_decoder.validAudio)
-        [self enableAudio:YES];
-    
-    LoggerStream(1, @"play movie");
+    if (KxPlayerStateReady == self.playerState ||
+        KxPlayerStatePaused == self.playerState) {
+        playBlock();
+    } else if (KxPlayerStateStopped == self.playerState) {
+        [self prepareToPlayWithCompletion:^(BOOL success) {
+            if (success) {
+                playBlock();
+            }
+        }];
+    }
 }
 
 - (void)pauseWithPlayerState:(KxPlayerState)playerState {
@@ -275,14 +298,31 @@ enum {
     
     self.playerState = playerState;
     self.playing = NO;
-    //_interrupted = YES;
     [self enableAudio:NO];
     self.decoder.lastFrameTS = 0;
+    
     LoggerStream(1, @"pause movie");
 }
 
 - (void)pause {
     [self pauseWithPlayerState:KxPlayerStatePaused];
+}
+
+- (void)stop {
+    if (!self.playing)
+        return;
+    
+    self.playerState = KxPlayerStateStopped;
+    self.playing = NO;
+    [self enableAudio:NO];
+    [self freeBufferedFrames];
+    @synchronized(_decoder) {
+        self.decoder.lastFrameTS = 0;
+        [_decoder closeFile];
+    }
+    _decoder = nil;
+    
+    LoggerStream(1, @"Stop movie");
 }
 
 - (void)seekTo:(NSTimeInterval)position {
@@ -327,11 +367,18 @@ enum {
 }
 
 - (NSTimeInterval)timeout {
-    return _decoder.timeout;
+    return _timeout;
 }
 
 - (void)setTimeout:(NSTimeInterval)timeout {
+    if (timeout == _timeout) {
+        return;
+    }
+    
+    [self willChangeValueForKey:@"timeout"];
+    _timeout = timeout;
     _decoder.timeout = timeout;
+    [self didChangeValueForKey:@"timeout"];
 }
 
 #pragma mark - private
@@ -398,6 +445,8 @@ enum {
             if (_maxBufferedDuration < _minBufferedDuration)
                 _maxBufferedDuration = _minBufferedDuration * 2;
         }
+        
+        _decoder.timeout = _timeout;
         
         LoggerStream(2, @"buffered limit: %.1f - %.1f", _minBufferedDuration, _maxBufferedDuration);
         
@@ -672,38 +721,39 @@ enum {
     
     self.decoding = YES;
     dispatch_async(_dispatchQueue, ^{
-        
-        {
-            __strong KxMovieController *strongSelf = weakSelf;
-            if (!strongSelf.playing)
-                return;
-        }
-        
-        BOOL good = YES;
-        while (good) {
+        @synchronized(_decoder) {
+            {
+                __strong KxMovieController *strongSelf = weakSelf;
+                if (!strongSelf.playing)
+                    return;
+            }
             
-            good = NO;
-            
-            @autoreleasepool {
+            BOOL good = YES;
+            while (good) {
                 
-                __strong KxMovieDecoder *decoder = weakDecoder;
+                good = NO;
                 
-                if (decoder && (decoder.validVideo || decoder.validAudio)) {
+                @autoreleasepool {
                     
-                    NSArray *frames = [decoder decodeFrames:duration];
-                    if (frames.count) {
+                    __strong KxMovieDecoder *decoder = weakDecoder;
+                    
+                    if (decoder && (decoder.validVideo || decoder.validAudio)) {
                         
-                        __strong KxMovieController *strongSelf = weakSelf;
-                        if (strongSelf)
-                            good = [strongSelf addFrames:frames];
+                        NSArray *frames = [decoder decodeFrames:duration];
+                        if (frames.count) {
+                            
+                            __strong KxMovieController *strongSelf = weakSelf;
+                            if (strongSelf)
+                                good = [strongSelf addFrames:frames];
+                        }
                     }
                 }
             }
-        }
-        
-        {
-            __strong KxMovieController *strongSelf = weakSelf;
-            if (strongSelf) strongSelf.decoding = NO;
+            
+            {
+                __strong KxMovieController *strongSelf = weakSelf;
+                if (strongSelf) strongSelf.decoding = NO;
+            }
         }
     });
 }
@@ -734,7 +784,7 @@ enum {
         if (0 == leftFrames) {
             
             if (_decoder.isEOF) {
-                [self pauseWithPlayerState:KxPlayerStateEnded];
+                [self pauseWithPlayerState:KxPlayerStateStopped];
                 
                 return;
             }

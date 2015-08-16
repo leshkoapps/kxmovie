@@ -10,14 +10,14 @@
 #import "KxMovieController.h"
 
 static NSString *states[] = {
-    @"Unknow",
+    @"Stopped",
     @"Preparing",
     @"Ready",
     @"Caching",
     @"Playing",
-    @"Paused",
-    @"Ended"
+    @"Paused"
 };
+
 #undef NSLog
 @interface PlayerViewController ()
 <KxMovieControllerDelegate>
@@ -40,6 +40,7 @@ static NSString *states[] = {
                                                                                              KxPlayerParameterAutoPlayEnable: @(YES)}];
     movieController.delegate = self;
     self.movieController = movieController;
+    
     CGRect frame = CGRectMake(0, 0, CGRectGetWidth(self.view.bounds) * 0.8, CGRectGetHeight(self.view.bounds) * 0.8);
     movieController.playerView.frame = frame;
     movieController.playerView.center = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
@@ -73,7 +74,7 @@ static NSString *states[] = {
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    [self.movieController pause];
+    [self.movieController stop];
     [super viewWillDisappear:animated];
 }
 
@@ -88,7 +89,6 @@ static NSString *states[] = {
 }
 
 - (void)movieController:(KxMovieController *)controller positionDidChange:(NSTimeInterval)position {
-    NSLog(@"Position: %f", position);
     self.slider.value = position / self.movieController.duration;
     self.label.text = [NSString stringWithFormat:@"%.1f/%.0f", position, self.movieController.duration];
 }
