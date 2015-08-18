@@ -67,7 +67,6 @@ enum {
 @property (readwrite, strong) KxArtworkFrame *artworkFrame;
 @property (nonatomic, assign) UIViewContentMode frameViewContentMode;
 @property (nonatomic, assign) KxPlayerState playerState;
-@property (nonatomic, strong) NSMutableArray    *observers;
 @property (nonatomic, assign) UIBackgroundTaskIdentifier    bgTaskId;
 
 @end
@@ -122,43 +121,11 @@ enum {
         _muted = NO;
         _moviePosition = 0;
         _parameters = parameters;
-        _backgroundPlayEnable = YES;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveMemoryWarning)
                                                      name:UIApplicationDidReceiveMemoryWarningNotification
                                                    object:nil];
-        
-        id observer1 = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notif) {
-            if (self.isPlaying) {
-                if (!self.isBackgroundPlayEnable) {
-                    [self stop];
-                } else {
-                    if ([self.delegate respondsToSelector:@selector(audioControllerWillBeginBackgroundTask:)]) {
-                        [self.delegate audioControllerWillBeginBackgroundTask:self];
-                    }
-                    self.bgTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-                        if ([self.delegate respondsToSelector:@selector(audioController:willEndBackgroundTask:)]) {
-                            [self.delegate audioController:self willEndBackgroundTask:YES];
-                        }
-                        [[UIApplication sharedApplication] endBackgroundTask:self.bgTaskId];
-                        self.bgTaskId = UIBackgroundTaskInvalid;
-                    }];
-                }
-            }
-        }];
-        
-        id observer2 = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notif) {
-            if (UIBackgroundTaskInvalid != self.bgTaskId) {
-                if ([self.delegate respondsToSelector:@selector(audioController:willEndBackgroundTask:)]) {
-                    [self.delegate audioController:self willEndBackgroundTask:NO];
-                }
-                [[UIApplication sharedApplication] endBackgroundTask:self.bgTaskId];
-                self.bgTaskId = UIBackgroundTaskInvalid;
-            }
-        }];
-        
-        self.observers = [@[observer1, observer2] mutableCopy];
         
         if (parameters[KxPlayerParameterAutoPlayEnable]) {
             [self play];
@@ -170,8 +137,6 @@ enum {
 
 - (void)dealloc {
     [self stop];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     if (_dispatchQueue) {
         _dispatchQueue = NULL;
