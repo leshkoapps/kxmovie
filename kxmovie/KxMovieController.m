@@ -302,7 +302,8 @@ KxMovieDecoderDelegate
     };
     
     if (KxPlayerStateReady == self.playerState ||
-        KxPlayerStatePaused == self.playerState) {
+        KxPlayerStatePaused == self.playerState ||
+        KxPlayerStateSeeking == self.playerState) {
         playBlock();
     } else if (KxPlayerStateStopped == self.playerState) {
         [self prepareToPlayWithCompletion:^(BOOL success) {
@@ -323,7 +324,7 @@ KxMovieDecoderDelegate
     self.playerState = playerState;
     self.playing = NO;
     [self enableAudio:NO];
-    self.decoder.lastFrameTS = 0;
+    self.decoder.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
     
     LoggerStream(1, @"pause movie");
 }
@@ -356,8 +357,9 @@ KxMovieDecoderDelegate
 - (void)setMoviePosition:(NSTimeInterval)position {
     BOOL playMode = self.playing;
     
-    self.playing = NO;
-    [self enableAudio:NO];
+//    self.playing = NO;
+    [self pauseWithPlayerState:KxPlayerStateSeeking];
+//    [self enableAudio:NO];
     
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){

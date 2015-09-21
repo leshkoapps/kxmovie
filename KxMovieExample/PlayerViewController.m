@@ -15,7 +15,8 @@ static NSString *states[] = {
     @"Ready",
     @"Caching",
     @"Playing",
-    @"Paused"
+    @"Paused",
+    @"Seeking"
 };
 
 #undef NSLog
@@ -34,9 +35,10 @@ static NSString *states[] = {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    NSString *path = @"http://hlstime2.plu.cn/longzhu/55fd569ffb16df2b9300106f.m3u8?start=1442752870&end=1442754728";
+    NSString *path = nil;
     path = @"http://hlstime2.plu.cn/longzhu/55f24ae4fb16df6181000060.m3u8?start=1442541417&end=1442541423";
-    path = @"rtmp://fcx0xh.live1-rtmp.z1.pili.qiniucdn.com/dayzh_staging/test";
+    path = @"http://vlv5lt.live1-hls.z1.pili.qiniucdn.com/dayzhtest/test.m3u8?start=1442827435&end=1442827624";
+    
     KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:path
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
                                                                                              KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
@@ -76,7 +78,7 @@ static NSString *states[] = {
 
 - (void)sliderValueChanged:(id)sender {
     UISlider *slider = (UISlider *)sender;
-    NSLog(@"%f", slider.value);
+    NSLog(@"%f, %f", slider.value, self.movieController.duration);
     [self.movieController seekTo:slider.value * self.movieController.duration];
 }
 
@@ -85,7 +87,9 @@ static NSString *states[] = {
 }
 
 - (void)movieController:(KxMovieController *)controller positionDidChange:(NSTimeInterval)position {
-    self.slider.value = position / self.movieController.duration;
+    if (!self.slider.isHighlighted) {
+        self.slider.value = position / self.movieController.duration;
+    }
     self.label.text = [NSString stringWithFormat:@"%.1f/%.0f", position, self.movieController.duration];
 }
 
