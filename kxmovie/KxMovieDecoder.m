@@ -11,10 +11,6 @@
 
 #import "KxMovieDecoder.h"
 #import <Accelerate/Accelerate.h>
-#include "libavformat/avformat.h"
-#include "libswscale/swscale.h"
-#include "libswresample/swresample.h"
-#include "libavutil/pixdesc.h"
 #import "KxAudioManager.h"
 #import "KxLogger.h"
 
@@ -425,6 +421,12 @@ static int interrupt_callback(void *ctx);
     NSUInteger          _artworkStream;
     NSInteger           _subtitleASSEvents;
 }
+
+@property (nonatomic, strong) NSLock *lock;
+@property (nonatomic, assign) BOOL  decoding;
+@property (nonatomic, assign) BOOL  closed;
+@property (nonatomic, strong) NSMutableArray    *frames;
+
 @end
 
 @implementation KxMovieDecoder
@@ -713,6 +715,10 @@ static int interrupt_callback(void *ctx);
     self = [super init];
     if (self) {
         self.timeout = kDefaultTimeout;
+        self.decoding = NO;
+        self.closed = NO;
+        self.frames = [[NSMutableArray alloc] init];
+        self.lock = [[NSLock alloc] init];
     }
     
     return self;
@@ -731,6 +737,8 @@ static int interrupt_callback(void *ctx);
 {
     NSAssert(path, @"nil path");
     NSAssert(!_formatCtx, @"already open");
+    
+    self.closed = NO;
     
     _isNetwork = isNetworkPath(path);
     
@@ -1004,6 +1012,14 @@ static int interrupt_callback(void *ctx);
 
 -(void) closeFile
 {
+    if (self.closed) {
+        return;
+    }
+    
+    self.closed = YES;
+    
+    self.lastFrameTS = 0;
+    
     [self closeAudioStream];
     [self closeVideoStream];
     [self closeSubtitleStream];
@@ -1369,6 +1385,14 @@ static int interrupt_callback(void *ctx);
         !_formatCtx) {
         return nil;
     }
+    
+    if (self.decoding || self.closed) {
+        return nil;
+    }
+    
+    self.decoding = YES;
+    
+    [self.lock lock];
 
     NSMutableArray *result = [NSMutableArray array];
     
@@ -1383,6 +1407,7 @@ static int interrupt_callback(void *ctx);
             _isEOF = YES;
             break;
         }
+        
         if (av_read_frame(_formatCtx, &packet) < 0) {
             _isEOF = YES;
             break;
@@ -1524,6 +1549,10 @@ static int interrupt_callback(void *ctx);
 
         av_free_packet(&packet);
 	}
+    
+    [self.lock unlock];
+    
+    self.decoding = NO;
 
     return result;
 }
@@ -1542,7 +1571,12 @@ static int interrupt_callback(void *ctx)
     
     NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
     if (p.lastFrameTS && now - p.lastFrameTS > p.timeout) {
-        [p closeFile];
+        if ([p.delegate respondsToSelector:@selector(movieDecoderDidInterrupt:)]) {
+            [p.delegate movieDecoderDidInterrupt:p];
+        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            [p closeFile];
+        });
         return YES;
     }
     

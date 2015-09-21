@@ -34,7 +34,7 @@ static NSString *states[] = {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"xxx"
+    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"rtmp://vlv5lt.live1.z1.pili.qiniucdn.com/dayzhtest/test"
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
                                                                                              KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
                                                                                              KxPlayerParameterAutoPlayEnable: @(YES)}];

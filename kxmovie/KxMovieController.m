@@ -68,7 +68,10 @@ enum {
 #define NETWORK_MIN_BUFFERED_DURATION 2.0
 #define NETWORK_MAX_BUFFERED_DURATION 4.0
 
-@interface KxMovieController () {
+@interface KxMovieController ()
+<
+KxMovieDecoderDelegate
+> {
     
     KxMovieDecoder      *_decoder;
     dispatch_queue_t    _dispatchQueue;
@@ -216,6 +219,13 @@ enum {
     }
 }
 
+#pragma mark - <KxMovieDecoderDelegate>
+
+- (void)movieDecoderDidInterrupt:(KxMovieDecoder *)decoder {
+    self.playing = NO;
+    self.playerState = KxPlayerStateStopped;
+}
+
 #pragma mark - public
 
 - (void)prepareToPlayWithCompletion:(void (^)(BOOL success))handler {
@@ -227,6 +237,7 @@ enum {
     __weak KxMovieController *weakSelf = self;
     
     KxMovieDecoder *decoder = [[KxMovieDecoder alloc] init];
+    decoder.delegate = self;
     decoder.interruptCallback = ^BOOL(){
         
         __strong KxMovieController *strongSelf = weakSelf;
@@ -249,6 +260,9 @@ enum {
             return ;
         }
         
+        if (KxPlayerStateStopped == self.playerState) {
+            return ;
+        }
         dispatch_sync(dispatch_get_main_queue(), ^{
             [strongSelf setMovieDecoder:decoder withError:error];
         });
@@ -263,6 +277,10 @@ enum {
         return;
     
     void (^playBlock)(void)  = ^{
+        if (KxPlayerStateStopped == self.playerState) {
+            return ;
+        }
+        
         self.playerState = KxPlayerStateCaching;
         self.playing = YES;
         _buffered = YES;
@@ -288,6 +306,9 @@ enum {
         playBlock();
     } else if (KxPlayerStateStopped == self.playerState) {
         [self prepareToPlayWithCompletion:^(BOOL success) {
+            if (KxPlayerStateStopped == self.playerState) {
+                return ;
+            }
             if (success) {
                 playBlock();
             }
@@ -312,7 +333,7 @@ enum {
 }
 
 - (void)stop {
-    if (!self.playing)
+    if (!self.playing && KxPlayerStatePreparing != self.playerState)
         return;
     
     self.playerState = KxPlayerStateStopped;

@@ -228,7 +228,7 @@
         path = _localMovies[indexPath.row];
     }
     
-    AudioViewController *vc = [[AudioViewController alloc] init];
+    PlayerViewController *vc = [[PlayerViewController alloc] init];
     [self.navigationController pushViewController:vc animated:YES];
 
     LoggerApp(1, @"Playing a movie: %@", path);

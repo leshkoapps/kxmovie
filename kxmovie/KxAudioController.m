@@ -59,6 +59,9 @@ enum {
 #define NETWORK_MAX_BUFFERED_DURATION 4.0
 
 @interface KxAudioController ()
+<
+KxMovieDecoderDelegate
+>
 
 @property (nonatomic, strong) NSString  *path;
 @property (nonatomic, strong) KxMovieDecoder *decoder;
@@ -167,11 +170,17 @@ enum {
         }
         
     } else {
-        
         [self freeBufferedFrames];
         [_decoder closeFile];
         [_decoder openFile:nil error:nil];
     }
+}
+
+#pragma mark - <KxMovieDecoderDelegate>
+
+- (void)movieDecoderDidInterrupt:(KxMovieDecoder *)decoder {
+    self.playing = NO;
+    self.playerState = KxPlayerStateStopped;
 }
 
 #pragma mark - public
@@ -185,6 +194,7 @@ enum {
     __weak KxAudioController *weakSelf = self;
     
     KxMovieDecoder *decoder = [[KxMovieDecoder alloc] init];
+    decoder.delegate = self;
     decoder.interruptCallback = ^BOOL(){
         
         __strong KxAudioController *strongSelf = weakSelf;
