@@ -458,12 +458,12 @@ static int interrupt_callback(void *ctx);
 
 - (CGFloat) position
 {
-    return _position;
+    return _position - self.startDuration;
 }
 
 - (void) setPosition: (CGFloat)seconds
 {
-    _position = seconds;
+    _position = seconds + self.startDuration;
     _isEOF = NO;
 	   
     if (_videoStream != -1) {
@@ -719,6 +719,7 @@ static int interrupt_callback(void *ctx);
         self.closed = NO;
         self.frames = [[NSMutableArray alloc] init];
         self.lock = [[NSLock alloc] init];
+        self.hasStartDurationSet = NO;
     }
     
     return self;
@@ -751,6 +752,7 @@ static int interrupt_callback(void *ctx);
     
     _path = path;
     
+    self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
     kxMovieError errCode = [self openInput: path];
     
     if (errCode == kxMovieErrorNone) {
@@ -1018,7 +1020,7 @@ static int interrupt_callback(void *ctx);
     
     self.closed = YES;
     
-    self.lastFrameTS = 0;
+    self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
     
     [self closeAudioStream];
     [self closeVideoStream];
@@ -1194,6 +1196,14 @@ static int interrupt_callback(void *ctx);
     frame.height = _videoCodecCtx->height;
     frame.position = av_frame_get_best_effort_timestamp(_videoFrame) * _videoTimeBase;
     
+    if (!self.hasStartDurationSet) {
+        self.startDuration = frame.position;
+        self.hasStartDurationSet = YES;
+    }
+    
+    frame.position -= self.startDuration;
+    _position = frame.position;
+    
     const int64_t frameDuration = av_frame_get_pkt_duration(_videoFrame);
     if (frameDuration) {
         
@@ -1209,7 +1219,7 @@ static int interrupt_callback(void *ctx);
         // sometimes, ffmpeg unable to determine a frame duration
         // as example yuvj420p stream from web camera
         frame.duration = 1.0 / _fps;
-    }    
+    }
     
 #if 0
     LoggerVideo(2, @"VFD: %.4f %.4f | %lld ",
@@ -1290,6 +1300,13 @@ static int interrupt_callback(void *ctx);
     frame.position = av_frame_get_best_effort_timestamp(_audioFrame) * _audioTimeBase;
     frame.duration = av_frame_get_pkt_duration(_audioFrame) * _audioTimeBase;
     frame.samples = data;
+    
+    if (!self.hasStartDurationSet) {
+        self.startDuration = frame.position;
+        self.hasStartDurationSet = YES;
+    }
+    
+    frame.position -= self.startDuration;
     
     if (frame.duration == 0) {
         // sometimes ffmpeg can't determine the duration of audio frame
@@ -1410,6 +1427,7 @@ static int interrupt_callback(void *ctx);
         
         if (av_read_frame(_formatCtx, &packet) < 0) {
             _isEOF = YES;
+            av_free_packet(&packet);
             break;
         }
         

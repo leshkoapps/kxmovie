@@ -34,7 +34,10 @@ static NSString *states[] = {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:@"rtmp://vlv5lt.live1.z1.pili.qiniucdn.com/dayzhtest/test"
+    NSString *path = @"http://hlstime2.plu.cn/longzhu/55fd569ffb16df2b9300106f.m3u8?start=1442752870&end=1442754728";
+    path = @"http://hlstime2.plu.cn/longzhu/55f24ae4fb16df6181000060.m3u8?start=1442541417&end=1442541423";
+    path = @"rtmp://fcx0xh.live1-rtmp.z1.pili.qiniucdn.com/dayzh_staging/test";
+    KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:path
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),
                                                                                              KxMovieParameterFrameViewContentMode: @(UIViewContentModeScaleAspectFill),
                                                                                              KxPlayerParameterAutoPlayEnable: @(YES)}];

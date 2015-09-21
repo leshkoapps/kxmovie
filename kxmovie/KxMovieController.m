@@ -581,6 +581,7 @@ KxMovieDecoderDelegate
                             if (delta < -0.1) {
                                 
                                 memset(outData, 0, numFrames * numChannels * sizeof(float));
+                                [_audioFrames removeObjectAtIndex:0];
                                 break; // silence and exit
                             }
                             
