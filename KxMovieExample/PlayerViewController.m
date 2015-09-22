@@ -38,6 +38,8 @@ static NSString *states[] = {
     NSString *path = nil;
     path = @"http://hlstime2.plu.cn/longzhu/55f24ae4fb16df6181000060.m3u8?start=1442541417&end=1442541423";
     path = @"http://vlv5lt.live1-hls.z1.pili.qiniucdn.com/dayzhtest/test.m3u8?start=1442827435&end=1442827624";
+    path = @"rtmp://vlv5lt.live-rtmp.z1.pili.qiniucdn.com/dayzhtest/test";
+    path = @"http://115.231.182.72/test/test1.m3u8";
     
     KxMovieController *movieController = [KxMovieController movieControllerWithContentPath:path
                                                                                 parameters:@{KxMovieParameterDisableDeinterlacing: @(YES),

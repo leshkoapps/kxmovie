@@ -786,6 +786,12 @@ KxMovieDecoderDelegate
         self.playerState = KxPlayerStatePlaying;
     }
     
+    if (_decoder.validVideo) {
+        if (_videoFrames.count > 100) {
+            [self freeBufferedFrames];
+        }
+    }
+    
     CGFloat interval = 0;
     if (!_buffered) {
 //        if (self.isPlaying) {
