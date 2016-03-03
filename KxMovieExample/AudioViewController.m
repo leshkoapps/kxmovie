@@ -30,7 +30,12 @@ KxAudioControllerDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    KxAudioController *audioController = [KxAudioController audioControllerWithContentPath:@"rtmp://115.231.182.72/dayzh_staging/test"
+    //  http://hls.hz.qingting.fm/live/386.m3u8?bitrate=64&format=mpegts
+    //  rtmp://115.231.182.72/dayzh_staging/test
+    //  rtmp://live.hkstv.hk.lxdns.com/live/hks
+    
+    
+    KxAudioController *audioController = [KxAudioController audioControllerWithContentPath:@"rtmp://live.hkstv.hk.lxdns.com/live/hks"
                                                                                 parameters:@{KxPlayerParameterAutoPlayEnable: @(YES)}];
     audioController.delegate = self;
     audioController.timeout = 30;
