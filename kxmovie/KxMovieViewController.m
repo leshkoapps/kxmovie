@@ -17,10 +17,6 @@
 #import "KxMovieGLView.h"
 #import "KxLogger.h"
 
-NSString * const KxMovieParameterMinBufferedDuration = @"KxMovieParameterMinBufferedDuration";
-NSString * const KxMovieParameterMaxBufferedDuration = @"KxMovieParameterMaxBufferedDuration";
-NSString * const KxMovieParameterDisableDeinterlacing = @"KxMovieParameterDisableDeinterlacing";
-
 ////////////////////////////////////////////////////////////////////////////////
 
 static NSString * formatTimeInterval(CGFloat seconds, BOOL isLeft)

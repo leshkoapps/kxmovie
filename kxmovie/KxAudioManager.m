@@ -24,6 +24,16 @@
 
 #define MAX_SAMPLE_DUMPED 5
 
+NSString *KxAudioSessionInterruptionStateKey = @"key.audioSession.interruptionState";
+NSString *KxAudioSessionInterruptionTypeKey = @"key.audioSession.interruptionType";
+NSString *KxAudioSessionDidInterrupteNotification = @"notification.audioSession.didInterrupte";
+
+NSString *KxAudioSessionRouteChangeReasonKey = @"key.audioSession.routeChangeReason";
+NSString *KxAudioSessionRouteDidChangeNotification = @"notificaiton.audioSession.routeDidChange";
+
+NSString *KxAudioSessionCurrentHardwareOutputVolumeKey = @"key.audioSession.outputVolumn";
+NSString *KxAudioSessionCurrentHardwareOutputVolumeDidChangeNotification = @"notification.audioSession.outputVolumn";
+
 static BOOL checkError(OSStatus error, const char *operation);
 static void sessionPropertyListener(void *inClientData, AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData);
 static void sessionInterruptionListener(void *inClientData, UInt32 inInterruption);
@@ -469,11 +479,25 @@ static void sessionPropertyListener(void *                  inClientData,
             [sm checkSessionProperties];
         }
         
+        NSDictionary *routeChangeDictionary = (__bridge NSDictionary *)((CFDictionaryRef)inData);
+        NSNumber *reasonNumber = routeChangeDictionary[(NSString *)CFSTR(kAudioSession_AudioRouteChangeKey_Reason)];
+        SInt32 reason = [reasonNumber intValue];
+        
+        NSDictionary *userInfo = @{KxAudioSessionRouteChangeReasonKey: @(reason)};
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:KxAudioSessionRouteDidChangeNotification object:nil userInfo:userInfo];
+        });
+        
     } else if (inID == kAudioSessionProperty_CurrentHardwareOutputVolume) {
         
         if (inData && inDataSize == 4) {
-
-            sm.outputVolume = *(float *)inData;
+            float volume = *(float *)inData;
+            sm.outputVolume = volume;
+            
+            NSDictionary *userInfo = @{KxAudioSessionCurrentHardwareOutputVolumeKey: @(volume)};
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:KxAudioSessionCurrentHardwareOutputVolumeDidChangeNotification object:nil userInfo:userInfo];
+            });
         }
     }
 }
@@ -481,6 +505,14 @@ static void sessionPropertyListener(void *                  inClientData,
 static void sessionInterruptionListener(void *inClientData, UInt32 inInterruption)
 {    
     KxAudioManagerImpl *sm = (__bridge KxAudioManagerImpl *)inClientData;
+    
+    AudioSessionInterruptionType interruptionType = kAudioSessionInterruptionType_ShouldNotResume;
+    
+    NSDictionary *userInfo = @{KxAudioSessionInterruptionStateKey: @(inInterruption),
+                               KxAudioSessionInterruptionTypeKey: @(interruptionType)};
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:KxAudioSessionDidInterrupteNotification object:nil userInfo:userInfo];
+    });
     
 	if (inInterruption == kAudioSessionBeginInterruption) {
         

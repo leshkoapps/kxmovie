@@ -11,12 +11,10 @@
 
 #import "KxMovieDecoder.h"
 #import <Accelerate/Accelerate.h>
-#include "libavformat/avformat.h"
-#include "libswscale/swscale.h"
-#include "libswresample/swresample.h"
-#include "libavutil/pixdesc.h"
 #import "KxAudioManager.h"
 #import "KxLogger.h"
+
+#define kDefaultTimeout 3
 
 ////////////////////////////////////////////////////////////////////////////////
 NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
@@ -423,6 +421,12 @@ static int interrupt_callback(void *ctx);
     NSUInteger          _artworkStream;
     NSInteger           _subtitleASSEvents;
 }
+
+@property (nonatomic, strong) NSLock *lock;
+@property (nonatomic, assign) BOOL  decoding;
+@property (nonatomic, assign) BOOL  closed;
+@property (nonatomic, strong) NSMutableArray    *frames;
+
 @end
 
 @implementation KxMovieDecoder
@@ -454,12 +458,12 @@ static int interrupt_callback(void *ctx);
 
 - (CGFloat) position
 {
-    return _position;
+    return _position - self.startDuration;
 }
 
 - (void) setPosition: (CGFloat)seconds
 {
-    _position = seconds;
+    _position = seconds + self.startDuration;
     _isEOF = NO;
 	   
     if (_videoStream != -1) {
@@ -707,6 +711,20 @@ static int interrupt_callback(void *ctx);
     return mp;
 }
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.timeout = kDefaultTimeout;
+        self.decoding = NO;
+        self.closed = NO;
+        self.frames = [[NSMutableArray alloc] init];
+        self.lock = [[NSLock alloc] init];
+        self.hasStartDurationSet = NO;
+    }
+    
+    return self;
+}
+
 - (void) dealloc
 {
     LoggerStream(2, @"%@ dealloc", self);
@@ -721,6 +739,8 @@ static int interrupt_callback(void *ctx);
     NSAssert(path, @"nil path");
     NSAssert(!_formatCtx, @"already open");
     
+    self.closed = NO;
+    
     _isNetwork = isNetworkPath(path);
     
     static BOOL needNetworkInit = YES;
@@ -732,6 +752,7 @@ static int interrupt_callback(void *ctx);
     
     _path = path;
     
+    self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
     kxMovieError errCode = [self openInput: path];
     
     if (errCode == kxMovieErrorNone) {
@@ -993,6 +1014,14 @@ static int interrupt_callback(void *ctx);
 
 -(void) closeFile
 {
+    if (self.closed) {
+        return;
+    }
+    
+    self.closed = YES;
+    
+    self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
+    
     [self closeAudioStream];
     [self closeVideoStream];
     [self closeSubtitleStream];
@@ -1167,6 +1196,14 @@ static int interrupt_callback(void *ctx);
     frame.height = _videoCodecCtx->height;
     frame.position = av_frame_get_best_effort_timestamp(_videoFrame) * _videoTimeBase;
     
+    if (!self.hasStartDurationSet) {
+        self.startDuration = frame.position;
+        self.hasStartDurationSet = YES;
+    }
+    
+    frame.position -= self.startDuration;
+    _position = frame.position;
+    
     const int64_t frameDuration = av_frame_get_pkt_duration(_videoFrame);
     if (frameDuration) {
         
@@ -1182,7 +1219,7 @@ static int interrupt_callback(void *ctx);
         // sometimes, ffmpeg unable to determine a frame duration
         // as example yuvj420p stream from web camera
         frame.duration = 1.0 / _fps;
-    }    
+    }
     
 #if 0
     LoggerVideo(2, @"VFD: %.4f %.4f | %lld ",
@@ -1263,6 +1300,13 @@ static int interrupt_callback(void *ctx);
     frame.position = av_frame_get_best_effort_timestamp(_audioFrame) * _audioTimeBase;
     frame.duration = av_frame_get_pkt_duration(_audioFrame) * _audioTimeBase;
     frame.samples = data;
+    
+    if (!self.hasStartDurationSet) {
+        self.startDuration = frame.position;
+        self.hasStartDurationSet = YES;
+    }
+    
+    frame.position -= self.startDuration;
     
     if (frame.duration == 0) {
         // sometimes ffmpeg can't determine the duration of audio frame
@@ -1354,9 +1398,18 @@ static int interrupt_callback(void *ctx);
 
 - (NSArray *) decodeFrames: (CGFloat) minDuration
 {
-    if (_videoStream == -1 &&
-        _audioStream == -1)
+    if ((_videoStream == -1 && _audioStream == -1) ||
+        !_formatCtx) {
         return nil;
+    }
+    
+    if (self.decoding || self.closed) {
+        return nil;
+    }
+    
+    self.decoding = YES;
+    
+    [self.lock lock];
 
     NSMutableArray *result = [NSMutableArray array];
     
@@ -1367,9 +1420,14 @@ static int interrupt_callback(void *ctx);
     BOOL finished = NO;
     
     while (!finished) {
+        if (!_formatCtx) {
+            _isEOF = YES;
+            break;
+        }
         
         if (av_read_frame(_formatCtx, &packet) < 0) {
             _isEOF = YES;
+            av_free_packet(&packet);
             break;
         }
         
@@ -1407,6 +1465,8 @@ static int interrupt_callback(void *ctx);
                         
                         [result addObject:frame];
                         
+                        self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
+                        
                         _position = frame.position;
                         decodedDuration += frame.duration;
                         if (decodedDuration > minDuration)
@@ -1443,7 +1503,9 @@ static int interrupt_callback(void *ctx);
                     if (frame) {
                         
                         [result addObject:frame];
-                                                
+                        
+                        self.lastFrameTS = [NSDate timeIntervalSinceReferenceDate];
+                        
                         if (_videoStream == -1) {
                             
                             _position = frame.position;
@@ -1505,6 +1567,10 @@ static int interrupt_callback(void *ctx);
 
         av_free_packet(&packet);
 	}
+    
+    [self.lock unlock];
+    
+    self.decoding = NO;
 
     return result;
 }
@@ -1518,7 +1584,20 @@ static int interrupt_callback(void *ctx)
 {
     if (!ctx)
         return 0;
+    
     __unsafe_unretained KxMovieDecoder *p = (__bridge KxMovieDecoder *)ctx;
+    
+    NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+    if (p.lastFrameTS && now - p.lastFrameTS > p.timeout) {
+        if ([p.delegate respondsToSelector:@selector(movieDecoderDidInterrupt:)]) {
+            [p.delegate movieDecoderDidInterrupt:p];
+        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            [p closeFile];
+        });
+        return YES;
+    }
+    
     const BOOL r = [p interruptDecoder];
     if (r) LoggerStream(1, @"DEBUG: INTERRUPT_CALLBACK!");
     return r;
