@@ -18,7 +18,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    MainViewController *vc = [[MainViewController alloc] init];
+//    MainViewController *vc = [[MainViewController alloc] init];
     AudioViewController *vc2 = [[AudioViewController alloc] init];
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:vc2];
     

@@ -57,11 +57,24 @@ KxAudioControllerDelegate
 
 #pragma mark - <KxAudioControllerDelegate>
 
-- (void)audioController:(KxAudioController *)controller playerStateDidChange:(KxPlayerState)status {
-#ifdef NSLog
-#undef NSLog
-#endif
-    NSLog(@"%@", states[status]);
+- (void)audioController:(KxAudioController *)controller playerStateDidChange:(KxPlayerState)status
+{
+    NSLog(@"status %@", states[status]);
+}
+
+- (void)audioControllerDecoderHasBeenReady:(KxAudioController *)controller
+{
+    NSLog(@"audioControllerDecoderHasBeenReady");
+}
+
+- (void)audioController:(KxAudioController *)controller failureWithError:(NSError *)error
+{
+    NSLog(@"failureWithError %@", error);
+}
+
+- (void)audioController:(KxAudioController *)controller positionDidChange:(NSTimeInterval)position
+{
+    NSLog(@"positionDidChange");
 }
 
 @end
