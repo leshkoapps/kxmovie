@@ -10,17 +10,20 @@
 //  KxMovie is licenced under the LGPL v3, see lgpl-3.0.txt
 
 #import "AppDelegate.h"
+#import "PlayerViewController.h"
+#import "AudioViewController.h"
 #import "MainViewController.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    UIViewController *vc = [[MainViewController alloc] init];
-    UINavigationController *navVc = [[UINavigationController alloc] initWithRootViewController:vc];
-
+//    MainViewController *vc = [[MainViewController alloc] init];
+    AudioViewController *vc2 = [[AudioViewController alloc] init];
+    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:vc2];
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = navVc;
+    self.window.rootViewController = navController;
     [self.window makeKeyAndVisible];
 
     LoggerApp(1, @"Application didFinishLaunchingWithOptions");
